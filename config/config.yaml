@@ -1,0 +1,259 @@
+subinfo_fields:
+  - name: subject_id
+    type: int
+    constraints:
+      min: 101
+      max: 999
+      digits: 3
+
+subinfo_mapping:
+  subject_id: 被试编号（3位）
+  Participant Information: 被试信息
+  registration_failed: 注册失败
+  registration_successful: 注册成功
+  invalid_input: "{field} 输入无效"
+
+window:
+  size: [1280, 720]
+  units: pix
+  screen: 0
+  bg_color: black
+  fullscreen: true
+  fullscreen_lock_escape: true
+  monitor_width_cm: 35.5
+  monitor_distance_cm: 60
+
+task:
+  task_name: eefrt_preview
+  save_path: ./outputs/human
+  language: Chinese
+  voice_name: zh-CN-YunyangNeural
+  voice_enabled: true
+  total_blocks: 1
+  total_trials: 24
+  trial_per_block: 24
+  conditions: [offer]
+  key_list: ["f", "j", "space"]
+  choice_keys: ["f", "j"]
+  effort_key: "space"
+  easy_reward: 1.00
+  easy_required_presses: 6
+  hard_required_presses: 16
+  easy_time_limit_s: 4.0
+  hard_time_limit_s: 8.0
+  seed_mode: same_across_sub
+  overall_seed: 2025
+  delta: 1
+  input_mode: keyboard
+  hide_cursor: true
+  force_quit_enabled: true
+  force_quit_shortcut: ctrl+q
+
+timing:
+  cue_duration: 0.8
+  anticipation_duration: 4.0
+  ready_duration: 0.8
+  feedback_duration: 0.8
+  reward_feedback_duration: 0.8
+  iti_duration: 0.8
+
+stimuli:
+  fixation:
+    type: text
+    font: SimHei
+    text: "+"
+    color: white
+    height: 46
+
+  instruction_text:
+    type: text
+    font: SimHei
+    text: |
+      努力奖赏任务（EEfRT）
+
+      每个试次你会先看到中奖概率，再在两种方案中做选择：
+      左侧为低努力（4秒内按空格6次，中奖奖励¥1.00）；
+      右侧为高努力（8秒内按空格16次，中奖奖励更高）。
+
+      选择阶段按 F 选左侧，按 J 选右侧。
+      进入执行阶段后，请尽快连续按空格键完成目标次数。
+
+      按空格键开始。
+    color: white
+    height: 28
+    wrapWidth: 980
+
+  choice_header:
+    type: text
+    font: SimHei
+    text: |
+      本试次中奖概率：{probability_pct}%
+      请在 4 秒内做出选择
+    color: white
+    height: 30
+    pos: [0, 250]
+    wrapWidth: 900
+
+  choice_left:
+    type: text
+    font: SimHei
+    text: |
+      低努力
+      目标：{easy_deadline_s} 秒内按空格 {easy_presses} 次
+      奖励：¥{easy_reward}
+    color: cyan
+    height: 32
+    pos: [-300, 10]
+    wrapWidth: 420
+
+  choice_right:
+    type: text
+    font: SimHei
+    text: |
+      高努力
+      目标：{hard_deadline_s} 秒内按空格 {hard_presses} 次
+      奖励：¥{hard_reward}
+    color: orange
+    height: 32
+    pos: [300, 10]
+    wrapWidth: 420
+
+  ready_text:
+    type: text
+    font: SimHei
+    text: |
+      你选择了：{choice_label}
+      请在 {time_limit_s} 秒内按 {effort_key} 键 {required_presses} 次
+
+      准备开始
+    color: cyan
+    height: 30
+    wrapWidth: 980
+
+  effort_prompt:
+    type: text
+    font: SimHei
+    text: |
+      当前方案：{choice_label}
+      目标：{required_presses} 次（时限 {time_limit_s} 秒）
+      请连续按 {effort_key} 键
+    color: white
+    height: 26
+    pos: [0, 195]
+    wrapWidth: 980
+
+  effort_counter:
+    type: text
+    font: SimHei
+    text: |
+      按键进度：{current_presses}/{required_presses}
+      剩余时间：{time_left_s} 秒
+    color: yellow
+    height: 26
+    pos: [0, -190]
+    wrapWidth: 980
+
+  effort_success_feedback:
+    type: text
+    font: SimHei
+    text: "任务完成"
+    color: green
+    height: 40
+
+  effort_fail_feedback:
+    type: text
+    font: SimHei
+    text: "任务未完成"
+    color: red
+    height: 40
+
+  reward_win_feedback:
+    type: text
+    font: SimHei
+    text: "中奖，获得 ¥{reward_amount}"
+    color: green
+    height: 40
+
+  reward_nowin_feedback:
+    type: text
+    font: SimHei
+    text: "未中奖，本试次奖励 ¥0.00"
+    color: orange
+    height: 38
+
+  reward_incomplete_feedback:
+    type: text
+    font: SimHei
+    text: "因任务未完成，本试次奖励 ¥0.00"
+    color: red
+    height: 36
+    wrapWidth: 900
+
+  block_break:
+    type: text
+    font: SimHei
+    text: |
+      区块 {block_num}/{total_blocks} 结束
+      高努力选择率：{hard_rate}
+      努力完成率：{completion_rate}
+      本区块累计奖励：¥{total_reward}
+
+      按空格键继续
+    color: white
+    height: 24
+    wrapWidth: 980
+
+  good_bye:
+    type: text
+    font: SimHei
+    text: |
+      任务结束
+      总奖励：¥{total_reward}
+      高努力选择率：{hard_rate}
+      努力完成率：{completion_rate}
+
+      按空格键退出
+    color: white
+    height: 28
+    wrapWidth: 980
+
+triggers:
+  map:
+    exp_onset: 1
+    exp_end: 2
+    block_onset: 10
+    block_end: 11
+    cue_onset: 20
+    choice_onset: 30
+    choice_easy_press: 31
+    choice_hard_press: 32
+    choice_no_response: 33
+    choice_forced: 34
+    ready_onset: 40
+    target_onset: 50
+    target_key_press: 51
+    target_complete: 52
+    target_fail: 53
+    feedback_onset: 60
+    reward_win_onset: 70
+    reward_nowin_onset: 71
+    reward_incomplete_onset: 72
+    iti_onset: 80
+
+  driver:
+    type: serial_url
+    url: loop://
+    baudrate: 115200
+
+  timing:
+    post_delay_ms: 1
+
+  policy:
+    strict: false
+
+condition_generation:
+  probability_levels: [0.12, 0.50, 0.88]
+  hard_reward_levels: [1.24, 1.68, 2.11, 2.55, 2.99, 3.43, 3.86, 4.30]
+  randomize_order: true
+  no_choice_hard_prob: 0.50
+  enable_logging: true

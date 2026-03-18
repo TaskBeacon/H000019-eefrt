@@ -1,0 +1,14 @@
+id: H000019
+slug: eefrt
+title: EEfRT Task
+acquisition: behavior
+variant: html
+cognitive_domain:
+  - motivation
+  - effort-based_decision_making
+maturity: prototype
+version:
+  release_tag: "0.1.0"
+contracts:
+  psyflow_web_taps: v0.1.0
+maintainer: []
