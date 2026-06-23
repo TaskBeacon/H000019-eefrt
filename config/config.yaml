@@ -30,8 +30,8 @@ task:
   voice_name: zh-CN-YunyangNeural
   voice_enabled: true
   total_blocks: 1
-  total_trials: 24
-  trial_per_block: 24
+  total_trials: 48
+  trial_per_block: 48
   conditions: [offer]
   key_list: ["f", "j", "space"]
   choice_keys: ["f", "j"]
@@ -50,12 +50,12 @@ task:
   force_quit_shortcut: ctrl+q
 
 timing:
-  cue_duration: 0.8
-  anticipation_duration: 4.0
-  ready_duration: 0.8
-  feedback_duration: 0.8
-  reward_feedback_duration: 0.8
-  iti_duration: 0.8
+  cue_duration: 1.0
+  anticipation_duration: 5.0
+  ready_duration: 1.0
+  feedback_duration: 1.0
+  reward_feedback_duration: 1.0
+  iti_duration: 1.0
 
 stimuli:
   fixation:
