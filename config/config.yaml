@@ -24,11 +24,11 @@ window:
   monitor_distance_cm: 60
 
 task:
-  task_name: eefrt_preview
+  task_name: eefrt
   save_path: ./outputs/human
   language: Chinese
   voice_name: zh-CN-YunyangNeural
-  voice_enabled: true
+  voice_enabled: false
   total_blocks: 1
   total_trials: 48
   trial_per_block: 48
@@ -36,11 +36,13 @@ task:
   key_list: ["f", "j", "space"]
   choice_keys: ["f", "j"]
   effort_key: "space"
+  easy_choice_label: "低努力"
+  hard_choice_label: "高努力"
   easy_reward: 1.00
-  easy_required_presses: 6
-  hard_required_presses: 16
-  easy_time_limit_s: 4.0
-  hard_time_limit_s: 8.0
+  easy_required_presses: 30
+  hard_required_presses: 100
+  easy_time_limit_s: 7.0
+  hard_time_limit_s: 21.0
   seed_mode: same_across_sub
   overall_seed: 2025
   delta: 1
@@ -72,8 +74,8 @@ stimuli:
       努力奖赏任务（EEfRT）
 
       每个试次你会先看到中奖概率，再在两种方案中做选择：
-      左侧为低努力（4秒内按空格6次，中奖奖励¥1.00）；
-      右侧为高努力（8秒内按空格16次，中奖奖励更高）。
+      左侧为低努力（7秒内按空格30次，中奖奖励¥1.00）；
+      右侧为高努力（21秒内按空格100次，中奖奖励更高）。
 
       选择阶段按 F 选左侧，按 J 选右侧。
       进入执行阶段后，请尽快连续按空格键完成目标次数。
@@ -88,7 +90,7 @@ stimuli:
     font: SimHei
     text: |
       本试次中奖概率：{probability_pct}%
-      请在 4 秒内做出选择
+      请在 5 秒内做出选择
     color: white
     height: 30
     pos: [0, 250]
@@ -194,8 +196,8 @@ stimuli:
     font: SimHei
     text: |
       区块 {block_num}/{total_blocks} 结束
-      高努力选择率：{hard_rate}
-      努力完成率：{completion_rate}
+      高努力选择率：{hard_rate:.1%}
+      努力完成率：{completion_rate:.1%}
       本区块累计奖励：¥{total_reward}
 
       按空格键继续

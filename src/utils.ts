@@ -1,4 +1,4 @@
-import type { ReducedTrialRow } from "psyflow-web";
+import { PythonRandom, type ReducedTrialRow } from "psyflow-web";
 
 export interface ConditionGenerationConfig {
   probability_levels?: number[];
@@ -17,23 +17,6 @@ export interface EefrtOfferSpec {
   reward_draw_u: number;
 }
 
-function makeSeededRandom(seed: number): () => number {
-  let value = seed >>> 0;
-  return () => {
-    value = (value + 0x6d2b79f5) >>> 0;
-    let t = Math.imul(value ^ (value >>> 15), 1 | value);
-    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function shuffleInPlace<T>(values: T[], rng: () => number): void {
-  for (let index = values.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(rng() * (index + 1));
-    [values[index], values[swapIndex]] = [values[swapIndex], values[index]];
-  }
-}
-
 function clampProbability(value: unknown, fallback = 0.5): number {
   const parsed = Number(value ?? fallback);
   if (!Number.isFinite(parsed)) {
@@ -48,6 +31,38 @@ function parseNumberList(input: unknown, fallback: number[]): number[] {
   }
   const parsed = input.map((value) => Number(value)).filter((value) => Number.isFinite(value));
   return parsed.length > 0 ? parsed : [...fallback];
+}
+
+function samplePython<T>(rng: PythonRandom, population: T[], k: number): T[] {
+  const n = population.length;
+  if (k < 0 || k > n) {
+    throw new RangeError("Sample larger than population or is negative.");
+  }
+  const result = new Array<T>(k);
+  let setsize = 21;
+  if (k > 5) {
+    setsize += 4 ** Math.ceil(Math.log(k * 3) / Math.log(4));
+  }
+  if (n <= setsize) {
+    const pool = [...population];
+    for (let i = 0; i < k; i += 1) {
+      const j = rng.randBelow(n - i);
+      result[i] = pool[j];
+      pool[j] = pool[n - i - 1];
+    }
+    return result;
+  }
+
+  const selected = new Set<number>();
+  for (let i = 0; i < k; i += 1) {
+    let j = rng.randBelow(n);
+    while (selected.has(j)) {
+      j = rng.randBelow(n);
+    }
+    selected.add(j);
+    result[i] = population[j];
+  }
+  return result;
 }
 
 export function build_eefrt_offer_conditions(
@@ -67,7 +82,7 @@ export function build_eefrt_offer_conditions(
   );
   const randomizeOrder = cfg.randomize_order !== false;
   const noChoiceHardProb = clampProbability(cfg.no_choice_hard_prob, 0.5);
-  const rng = makeSeededRandom(Math.trunc(seed));
+  const rng = new PythonRandom(Math.trunc(seed));
 
   const combos: Array<{ probability: number; hard_reward: number }> = [];
   for (const probability of probs) {
@@ -87,17 +102,15 @@ export function build_eefrt_offer_conditions(
   }
   if (rem > 0) {
     if (rem <= combos.length) {
-      const sampled = combos.map((combo) => ({ ...combo }));
-      shuffleInPlace(sampled, rng);
-      offers.push(...sampled.slice(0, rem));
+      offers.push(...samplePython(rng, combos, rem).map((combo) => ({ ...combo })));
     } else {
       for (let i = 0; i < rem; i += 1) {
-        offers.push({ ...combos[Math.floor(rng() * combos.length)] });
+        offers.push({ ...combos[Math.floor(rng.random() * combos.length)] });
       }
     }
   }
   if (randomizeOrder) {
-    shuffleInPlace(offers, rng);
+    rng.shuffle(offers);
   }
 
   const encoded: string[] = [];
@@ -112,8 +125,8 @@ export function build_eefrt_offer_conditions(
       hard_reward: offer.hard_reward,
       condition_id: conditionId,
       trial_index: trialIndex,
-      fallback_choice: rng() < noChoiceHardProb ? "hard" : "easy",
-      reward_draw_u: rng()
+      fallback_choice: rng.random() < noChoiceHardProb ? "hard" : "easy",
+      reward_draw_u: rng.random()
     };
     encoded.push(JSON.stringify(spec));
   });
@@ -143,8 +156,8 @@ function toPercent(value: number): string {
 }
 
 export function summarizeBlock(rows: ReducedTrialRow[], blockId: string): {
-  hard_rate: string;
-  completion_rate: string;
+  hard_rate: number;
+  completion_rate: number;
   total_reward: string;
 } {
   const blockRows = rows.filter((row) => row.block_id === blockId);
@@ -153,8 +166,8 @@ export function summarizeBlock(rows: ReducedTrialRow[], blockId: string): {
   const completionRate = blockRows.filter((row) => row.effort_completed === true).length / n;
   const totalReward = blockRows.reduce((sum, row) => sum + Number(row.reward_amount ?? 0), 0);
   return {
-    hard_rate: toPercent(hardRate),
-    completion_rate: toPercent(completionRate),
+    hard_rate: hardRate,
+    completion_rate: completionRate,
     total_reward: toMoney(totalReward)
   };
 }
